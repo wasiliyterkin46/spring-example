@@ -19,6 +19,9 @@ install:
 run:
 	./gradlew run
 
+bootRun:
+	./gradlew bootRun
+
 test:
 	./gradlew test
 
@@ -35,3 +38,4 @@ check-deps:
 build-run: build run
 
 .PHONY: build
+

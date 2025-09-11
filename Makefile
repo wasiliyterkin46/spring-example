@@ -19,6 +19,9 @@ install:
 run:
 	make -C ./app run
 
+bootRun:
+	make -C ./app bootRun
+
 test:
 	make -C ./app test
 
@@ -35,3 +38,4 @@ check-deps:
 build-run: make -C ./app build run
 
 .PHONY: build
+
