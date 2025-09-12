@@ -3,6 +3,8 @@ package io.hexlet.spring.controller;
 import io.hexlet.spring.model.Post;
 import jakarta.validation.Valid;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,30 +22,30 @@ import java.util.Optional;
 @SpringBootApplication
 @RestController
 public class PostController {
-    private static List<Post> posts = new ArrayList<>();
+    private List<Post> posts = new ArrayList<>();
 
     @GetMapping("/posts")
-    public static List<Post> index(@RequestParam(defaultValue = "10") Integer limit) {
+    public List<Post> index(@RequestParam(defaultValue = "10") Integer limit) {
         return posts.stream().limit(limit).toList();
     }
 
     @GetMapping("/posts/{id}")
-    public static Optional<Post> show(@PathVariable String id) {
+    public Optional<Post> show(@PathVariable String id) {
         return posts.stream()
                 .filter(p -> p.getId().equals(Long.parseLong(id)))
                 .findFirst();
     }
 
     @PostMapping("/posts")
-    public static Post create(@Valid @RequestBody Post post) {
+    public ResponseEntity<Post> create(@Valid @RequestBody Post post) {
         post.setId((long) (posts.size() + 1));
         post.setCreatedAt(LocalDateTime.now());
         posts.add(post);
-        return post;
+        return ResponseEntity.status(201).body(post);
     }
 
     @PutMapping("/posts/{id}") // Обновление страницы
-    public static Post update(@PathVariable String id, @Valid @RequestBody Post data) {
+    public Post update(@PathVariable String id, @Valid @RequestBody Post data) {
         var maybePost = posts.stream()
                 .filter(p -> p.getId().equals(Long.parseLong(id)))
                 .findFirst();
@@ -56,7 +58,8 @@ public class PostController {
     }
 
     @DeleteMapping("/posts/{id}")
-    public static void destroy(@PathVariable String id) {
+    public ResponseEntity<Void> destroy(@PathVariable String id) {
         posts.removeIf(p -> p.getId().equals(Long.parseLong(id)));
+        return ResponseEntity.status(204).build();
     }
 }
