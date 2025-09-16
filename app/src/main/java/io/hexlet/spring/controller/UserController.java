@@ -1,6 +1,6 @@
 package io.hexlet.spring.controller;
 
-import io.hexlet.spring.model.Post;
+import io.hexlet.spring.model.User;
 import jakarta.validation.Valid;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
@@ -15,59 +15,56 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootApplication
 @RestController
-@RequestMapping("/api/posts")
-public class PostController {
-    private List<Post> posts = new ArrayList<>();
+@RequestMapping("/api/users")
+public class UserController {
+    private List<User> users = new ArrayList<>();
 
     @GetMapping
-    public ResponseEntity<List<Post>> index(@RequestParam(defaultValue = "10") Integer limit) {
-        var list = posts.stream().limit(limit).toList();
+    public ResponseEntity<List<User>> index(@RequestParam(defaultValue = "10") Integer limit) {
+        var list = users.stream().limit(limit).toList();
         return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(posts.size()))
+                .header("X-Total-Count", String.valueOf(users.size()))
                 .body(list);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Post> show(@PathVariable String id) {
-        return posts.stream()
+    public ResponseEntity<User> show(@PathVariable String id) {
+        return users.stream()
                 .filter(p -> p.getId().equals(Long.parseLong(id)))
                 .findFirst()
-                .map(post -> ResponseEntity.ok().body(post)).orElseGet(() ->
+                .map(user -> ResponseEntity.ok().body(user)).orElseGet(() ->
                         ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
-
     }
 
     @PostMapping
-    public ResponseEntity<Post> create(@Valid @RequestBody Post post) {
-        post.setId((long) (posts.size() + 1));
-        post.setCreatedAt(LocalDateTime.now());
-        posts.add(post);
-        return ResponseEntity.status(201).body(post);
+    public ResponseEntity<User> create(@Valid @RequestBody User user) {
+        user.setId((long) (users.size() + 1));
+        users.add(user);
+        return ResponseEntity.status(201).body(user);
     }
 
     @PutMapping("/{id}") // Обновление страницы
-    public ResponseEntity<Post> update(@PathVariable String id, @Valid @RequestBody Post data) {
-        var maybePost = posts.stream()
+    public ResponseEntity<User> update(@PathVariable String id, @Valid @RequestBody User data) {
+        var maybePost = users.stream()
                 .filter(p -> p.getId().equals(Long.parseLong(id)))
                 .findFirst();
-        Post post = null;
+        User user = null;
         if (maybePost.isPresent()) {
-            post = maybePost.get();
-            post.update(data);
-            return ResponseEntity.ok().body(post);
+            user = maybePost.get();
+            user.update(data);
+            return ResponseEntity.ok().body(user);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> destroy(@PathVariable String id) {
-        posts.removeIf(p -> p.getId().equals(Long.parseLong(id)));
+        users.removeIf(p -> p.getId().equals(Long.parseLong(id)));
         return ResponseEntity.status(204).build();
     }
 }
