@@ -1,8 +1,10 @@
 package io.hexlet.spring.controller;
 
 import io.hexlet.spring.model.Post;
+import io.hexlet.spring.repository.PostRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,55 +21,55 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@SpringBootApplication
+import static io.hexlet.utils.UpdateEntity.updateEntity;
+
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
-    private List<Post> posts = new ArrayList<>();
+    private PostRepository postRepository;
+
+    public PostController(PostRepository postRepository) {
+        this.postRepository = postRepository;
+    }
 
     @GetMapping
-    public ResponseEntity<List<Post>> index(@RequestParam(defaultValue = "10") Integer limit) {
-        var list = posts.stream().limit(limit).toList();
+    public ResponseEntity<List<Post>> index(@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "0") Integer offset) {
+        var posts = postRepository.findAll(PageRequest.of(offset, limit));
         return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(posts.size()))
-                .body(list);
+                .header("X-Total-Count", String.valueOf(postRepository.count()))
+                .body(posts.toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Post> show(@PathVariable String id) {
-        return posts.stream()
-                .filter(p -> p.getId().equals(Long.parseLong(id)))
-                .findFirst()
-                .map(post -> ResponseEntity.ok().body(post)).orElseGet(() ->
-                        ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
-
-    }
-
-    @PostMapping
-    public ResponseEntity<Post> create(@Valid @RequestBody Post post) {
-        post.setId((long) (posts.size() + 1));
-        post.setCreatedAt(LocalDateTime.now());
-        posts.add(post);
-        return ResponseEntity.status(201).body(post);
-    }
-
-    @PutMapping("/{id}") // Обновление страницы
-    public ResponseEntity<Post> update(@PathVariable String id, @Valid @RequestBody Post data) {
-        var maybePost = posts.stream()
-                .filter(p -> p.getId().equals(Long.parseLong(id)))
-                .findFirst();
-        Post post = null;
-        if (maybePost.isPresent()) {
-            post = maybePost.get();
-            post.update(data);
-            return ResponseEntity.ok().body(post);
+        var longId = Long.parseLong(id);
+        var post = postRepository.findById(longId);
+        if (post.isPresent()) {
+            return ResponseEntity.ok().body(post.get());
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
+    @PostMapping
+    public ResponseEntity<Post> create(@Valid @RequestBody Post post) {
+        postRepository.save(post);
+        return ResponseEntity.status(201).body(post);
+    }
+
+    @PutMapping("/{id}") // Обновление страницы
+    public ResponseEntity<Post> update(@PathVariable String id, @Valid @RequestBody Post data) throws NoSuchFieldException, IllegalAccessException {
+        var longId = Long.parseLong(id);
+        var findedPost = postRepository.findById(longId).orElseThrow(EntityNotFoundException::new);
+        updateEntity(findedPost, data);
+        postRepository.save(findedPost);
+
+        return ResponseEntity.ok().body(findedPost);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> destroy(@PathVariable String id) {
-        posts.removeIf(p -> p.getId().equals(Long.parseLong(id)));
+        var longId = Long.parseLong(id);
+        postRepository.deleteById(longId);
         return ResponseEntity.status(204).build();
     }
 }

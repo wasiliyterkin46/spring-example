@@ -26,13 +26,25 @@ java {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
+    /*Важно!
+    * Указание версии persistence-api:3.2.0 вызывает ошибку при запуске приложения.
+    * Ошибка несовместимости Spring Data JPA / Hibernate / Jakarta.
+    * Версия подключенного плагина Spring Boot на момент возникновения ошибки:
+    * id("org.springframework.boot") version "3.5.5"
+    * */
 
+    runtimeOnly("com.h2database:h2:2.3.232")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     compileOnly("org.projectlombok:lombok:1.18.40")

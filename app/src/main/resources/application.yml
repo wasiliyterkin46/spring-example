@@ -1,6 +1,16 @@
 spring:
   jpa:
     show-sql: true       # вывод SQL-запросов
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
 output:
   ansi:
   enabled: always    # цветной вывод логотипа
