@@ -1,9 +1,11 @@
 package io.hexlet.spring.controller;
 
+import io.hexlet.spring.exception.ResourceNotFoundException;
 import io.hexlet.spring.model.User;
 import io.hexlet.spring.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ import static io.hexlet.utils.UpdateEntity.updateEntity;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+    @Autowired
     private UserRepository userRepository;
 
     public UserController(UserRepository userRepository) {
@@ -45,8 +48,10 @@ public class UserController {
         var user = userRepository.findById(longId);
         if (user.isPresent()) {
             return ResponseEntity.ok().body(user.get());
+        } else {
+            throw new ResourceNotFoundException(String.format("User with id = %s not found", id));
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
     @PostMapping
@@ -58,7 +63,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<User> update(@PathVariable String id, @Valid @RequestBody User data) throws NoSuchFieldException, IllegalAccessException {
         var longId = Long.parseLong(id);
-        var findedUser = userRepository.findById(longId).orElseThrow(EntityNotFoundException::new);
+        var findedUser = userRepository.findById(longId).orElseThrow(() -> new ResourceNotFoundException(String.format("User with id = %s not found", id)));
         updateEntity(findedUser, data);
         userRepository.save(findedUser);
 
@@ -68,6 +73,9 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> destroy(@PathVariable String id) {
         var longId = Long.parseLong(id);
+        if (userRepository.findById(longId).isEmpty()) {
+            throw new ResourceNotFoundException(String.format("User with id = %s not found", id));
+        }
         userRepository.deleteById(longId);
         return ResponseEntity.status(204).build();
     }
