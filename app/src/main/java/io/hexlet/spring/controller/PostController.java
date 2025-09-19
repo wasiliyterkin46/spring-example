@@ -6,7 +6,11 @@ import io.hexlet.spring.model.Post;
 import io.hexlet.spring.repository.PostRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -33,11 +38,17 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Post>> index(@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "0") Integer offset) {
-        var posts = postRepository.findAll(PageRequest.of(offset, limit));
-        return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(postRepository.count()))
-                .body(posts.toList());
+//    public ResponseEntity<List<Post>> getPublishedPosts(@RequestParam(defaultValue = "10") Integer limit,
+    public Page<Post> getPublishedPosts(@RequestParam(defaultValue = "10") Integer limit,
+                    @RequestParam(defaultValue = "1") Integer page,
+                    @RequestParam(defaultValue = "false") Boolean isPublished) {
+        Pageable pageable = PageRequest.of(page - 1, limit, Sort.by("createdAt").descending());
+//        var postsPage = isPublished ? postRepository.findByPublishedTrue(pageable) : postRepository.findAll(pageable);
+        return isPublished ? postRepository.findByPublishedTrue(pageable) : postRepository.findAll(pageable);
+
+//        return ResponseEntity.ok()
+//                .header("X-Total-Count", String.valueOf(postRepository.count()))
+//                .body(postsPage.toList());
     }
 
     @GetMapping("/{id}")

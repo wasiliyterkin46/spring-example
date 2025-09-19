@@ -34,8 +34,8 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<User>> index(@RequestParam(defaultValue = "10") Integer limit,
-                                            @RequestParam(defaultValue = "0") Integer offset) {
-        var users = userRepository.findAll(PageRequest.of(offset, limit));
+                                            @RequestParam(defaultValue = "1") Integer page) {
+        var users = userRepository.findAll(PageRequest.of(page - 1, limit));
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(userRepository.count()))
                 .body(users.toList());
