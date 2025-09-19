@@ -1,5 +1,6 @@
 package io.hexlet.spring.handler;
 
+import io.hexlet.spring.exception.ResourceAlreadyExistsException;
 import io.hexlet.spring.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleValidation(MethodArgumentNotValidException ex) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body("Validation failed: " + ex.getBindingResult().getFieldError().getDefaultMessage());
+    }
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<String> handleNotFound(ResourceAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

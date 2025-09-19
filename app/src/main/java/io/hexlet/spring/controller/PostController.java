@@ -1,5 +1,6 @@
 package io.hexlet.spring.controller;
 
+import io.hexlet.spring.exception.ResourceAlreadyExistsException;
 import io.hexlet.spring.exception.ResourceNotFoundException;
 import io.hexlet.spring.model.Post;
 import io.hexlet.spring.repository.PostRepository;
@@ -48,13 +49,14 @@ public class PostController {
         } else {
             throw new ResourceNotFoundException(String.format("Post with id = %s not found", id));
         }
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
     @PostMapping
     public ResponseEntity<Post> create(@Valid @RequestBody Post post) {
-        postRepository.save(post);
-        return ResponseEntity.status(201).body(post);
+        if (postRepository.findAll().contains(post)) {
+            throw new ResourceAlreadyExistsException("Post already exist");
+        }
+        return ResponseEntity.status(201).body(postRepository.save(post));
     }
 
     @PutMapping("/{id}") // Обновление страницы

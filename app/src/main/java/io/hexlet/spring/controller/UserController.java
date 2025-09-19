@@ -1,13 +1,12 @@
 package io.hexlet.spring.controller;
 
+import io.hexlet.spring.exception.ResourceAlreadyExistsException;
 import io.hexlet.spring.exception.ResourceNotFoundException;
 import io.hexlet.spring.model.User;
 import io.hexlet.spring.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,13 +50,14 @@ public class UserController {
         } else {
             throw new ResourceNotFoundException(String.format("User with id = %s not found", id));
         }
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
     @PostMapping
     public ResponseEntity<User> create(@Valid @RequestBody User user) {
-        userRepository.save(user);
-        return ResponseEntity.status(201).body(user);
+        if (userRepository.findAll().contains(user)) {
+            throw new ResourceAlreadyExistsException("User already exist");
+        }
+        return ResponseEntity.status(201).body(userRepository.save(user));
     }
 
     @PutMapping("/{id}")
