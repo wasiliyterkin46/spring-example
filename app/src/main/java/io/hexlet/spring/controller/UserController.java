@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static io.hexlet.utils.UpdateEntity.updateEntity;
+import static io.hexlet.spring.utils.UpdateEntity.updateEntity;
 
 @RestController
 @RequestMapping("/api/users")
@@ -42,9 +42,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> show(@PathVariable String id) {
-        var longId = Long.parseLong(id);
-        var user = userRepository.findById(longId);
+    public ResponseEntity<User> show(@PathVariable long id) {
+        var user = userRepository.findById(id);
         if (user.isPresent()) {
             return ResponseEntity.ok().body(user.get());
         } else {
@@ -61,9 +60,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable String id, @Valid @RequestBody User data) throws NoSuchFieldException, IllegalAccessException {
-        var longId = Long.parseLong(id);
-        var findedUser = userRepository.findById(longId).orElseThrow(() -> new ResourceNotFoundException(String.format("User with id = %s not found", id)));
+    public ResponseEntity<User> update(@PathVariable long id, @Valid @RequestBody User data) throws NoSuchFieldException, IllegalAccessException {
+        var findedUser = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(String.format("User with id = %s not found", id)));
         updateEntity(findedUser, data);
         userRepository.save(findedUser);
 
@@ -71,12 +69,11 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> destroy(@PathVariable String id) {
-        var longId = Long.parseLong(id);
-        if (userRepository.findById(longId).isEmpty()) {
+    public ResponseEntity<Void> destroy(@PathVariable long id) {
+        if (userRepository.findById(id).isEmpty()) {
             throw new ResourceNotFoundException(String.format("User with id = %s not found", id));
         }
-        userRepository.deleteById(longId);
+        userRepository.deleteById(id);
         return ResponseEntity.status(204).build();
     }
 }

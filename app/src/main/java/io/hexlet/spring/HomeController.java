@@ -1,8 +1,10 @@
 package io.hexlet.spring;
 
 import io.hexlet.spring.controller.PostController;
+import net.datafaker.Faker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +27,11 @@ public class HomeController {
     @GetMapping("/about")
     public String about() {
         return "This is simple Spring blog!";
+    }
+
+    @Bean
+    public Faker faker() {
+        return new Faker();
     }
 
 }

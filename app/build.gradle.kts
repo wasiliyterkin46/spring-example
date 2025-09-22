@@ -4,6 +4,7 @@ plugins {
     id("org.springframework.boot") version "3.5.5"
     id("io.spring.dependency-management") version "1.1.7"
     id("io.freefair.lombok") version "8.14.2"
+    id("com.github.ben-manes.versions") version "0.52.0"
 }
 
 group = "io.hexlet"
@@ -24,6 +25,8 @@ java {
 }
 
 dependencies {
+    implementation("net.datafaker:datafaker:2.5.0")
+
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")

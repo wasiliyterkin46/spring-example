@@ -23,9 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-import static io.hexlet.utils.UpdateEntity.updateEntity;
+import static io.hexlet.spring.utils.UpdateEntity.updateEntity;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -33,28 +31,18 @@ public class PostController {
     @Autowired
     private PostRepository postRepository;
 
-    public PostController(PostRepository postRepository) {
-        this.postRepository = postRepository;
-    }
-
     @GetMapping
-//    public ResponseEntity<List<Post>> getPublishedPosts(@RequestParam(defaultValue = "10") Integer limit,
+    @ResponseStatus(HttpStatus.OK)
     public Page<Post> getPublishedPosts(@RequestParam(defaultValue = "10") Integer limit,
                     @RequestParam(defaultValue = "1") Integer page,
                     @RequestParam(defaultValue = "false") Boolean isPublished) {
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.by("createdAt").descending());
-//        var postsPage = isPublished ? postRepository.findByPublishedTrue(pageable) : postRepository.findAll(pageable);
         return isPublished ? postRepository.findByPublishedTrue(pageable) : postRepository.findAll(pageable);
-
-//        return ResponseEntity.ok()
-//                .header("X-Total-Count", String.valueOf(postRepository.count()))
-//                .body(postsPage.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Post> show(@PathVariable String id) {
-        var longId = Long.parseLong(id);
-        var post = postRepository.findById(longId);
+    public ResponseEntity<Post> show(@PathVariable long id) {
+        var post = postRepository.findById(id);
         if (post.isPresent()) {
             return ResponseEntity.ok().body(post.get());
         } else {
@@ -71,9 +59,8 @@ public class PostController {
     }
 
     @PutMapping("/{id}") // Обновление страницы
-    public ResponseEntity<Post> update(@PathVariable String id, @Valid @RequestBody Post data) throws NoSuchFieldException, IllegalAccessException {
-        var longId = Long.parseLong(id);
-        var findedPost = postRepository.findById(longId).orElseThrow(() -> new ResourceNotFoundException(String.format("Post with id = %s not found", id)));
+    public ResponseEntity<Post> update(@PathVariable long id, @Valid @RequestBody Post data) throws NoSuchFieldException, IllegalAccessException {
+        var findedPost = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(String.format("Post with id = %s not found", id)));
         updateEntity(findedPost, data);
         postRepository.save(findedPost);
 
@@ -81,12 +68,11 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> destroy(@PathVariable String id) {
-        var longId = Long.parseLong(id);
-        if (postRepository.findById(longId).isEmpty()) {
+    public ResponseEntity<Void> destroy(@PathVariable long id) {
+        if (postRepository.findById(id).isEmpty()) {
             throw new ResourceNotFoundException(String.format("Post with id = %s not found", id));
         }
-        postRepository.deleteById(longId);
+        postRepository.deleteById(id);
         return ResponseEntity.status(204).build();
     }
 }
