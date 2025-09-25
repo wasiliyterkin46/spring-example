@@ -1,16 +1,16 @@
 package io.hexlet.spring.utils;
 
-import io.hexlet.spring.model.Post;
+/*import io.hexlet.spring.model.Post;
 import io.hexlet.spring.model.User;
 import io.hexlet.spring.repository.PostRepository;
 import io.hexlet.spring.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import net.datafaker.Faker;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Component;*/
 
-@Component
+//@Component
 public class ModelGenerator {
-    private final Faker faker;
+    /*private final Faker faker;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
@@ -34,7 +34,10 @@ public class ModelGenerator {
             post.setContent(faker.lorem().paragraph());
             post.setPublished(faker.bool().bool());
 //            post.setUser(user);
+//          Закомментировано, так как код скопирован из примера урока Хекслета, а в моей объектной модели
+//          в посте не указывается пользователь, который создал пост.
+
             postRepository.save(post);
         }
-    }
+    }*/
 }

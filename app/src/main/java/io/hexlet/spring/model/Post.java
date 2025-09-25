@@ -33,7 +33,7 @@ public class Post {
     @NotBlank
     private String content;
     @Column(nullable = false)
-    private boolean published;
+    private Boolean published;
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

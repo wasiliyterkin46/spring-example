@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.EqualsAndHashCode;
 
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
@@ -25,12 +26,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     @NotBlank
+    @EqualsAndHashCode.Include
     private String email;
     private String firstName;
     private String lastName;
